@@ -3,11 +3,13 @@ name: React Frontend CI
 on:
   push:
     branches:
-      - MAIN[k8s]
+      - MAIN
 
 jobs:
   build:
     runs-on: self-hosted
+    tags:
+      - k8s
 
     steps:
     - name: Checkout repository
