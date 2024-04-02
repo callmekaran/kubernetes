@@ -8,9 +8,10 @@ on:
 jobs:
   build:
     runs-on: self-hosted
-    tags:
-      - k8s
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    steps:
+    - name: Checkout Test
+      uses: echo "Test" > test
