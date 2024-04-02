@@ -3,15 +3,14 @@ name: React Frontend CI
 on:
   push:
     branches:
-      - MAIN
+      - main
 
 jobs:
   build:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-    steps:
-    - name: Checkout Test
-      run: echo "Test" > test
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Checkout Test
+        run: echo "Test" > test
