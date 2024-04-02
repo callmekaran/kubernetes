@@ -19,7 +19,7 @@ spec:
     metadata:
       name: dpop
       labels: 
-        app: myapp1
+        app: myapp1 
     spec:
        containers:
          - name: container1
