@@ -3,7 +3,7 @@ name: React Frontend CI
 on:
   push:
     branches:
-      - MAIN
+      - MAIN[k8s]
 
 jobs:
   build:
