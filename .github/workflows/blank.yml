@@ -14,4 +14,4 @@ jobs:
       uses: actions/checkout@v2
     steps:
     - name: Checkout Test
-      uses: echo "Test" > test
+      run: echo "Test" > test
