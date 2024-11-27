@@ -1,0 +1,80 @@
+#Steps to create ELB IN EKS
+
+curl -o iam_policy_latest.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+
+# Create IAM Policy using policy downloaded 
+
+aws iam create-policy \
+    --policy-name AWSLoadBalancerControllerIAMPolicy \
+    --policy-document file://iam_policy_latest.json
+
+
+eksctl utils associate-iam-oidc-provider \
+  --region=ap-south-1 \
+  --cluster=Prod-EKS \
+  --approve
+
+
+#Paste ARN (arn:aws:iam::390403863665:policy/AWSLoadBalancerControllerIAMPolicy)
+
+
+
+eksctl create iamserviceaccount \
+  --cluster=Prod-EKS \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --attach-policy-arn=arn:aws:iam::390403863665:policy/AWSLoadBalancerControllerIAMPolicy \
+  --override-existing-serviceaccounts \
+  --approve
+
+
+#Verify using eksctl cli
+
+eksctl  get iamserviceaccount --cluster Prod-EKS
+kubectl get sa aws-load-balancer-controller -n kube-system
+
+#helm setup
+
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+
+
+#Install AWS Load Balancer Controller
+
+helm repo add eks https://aws.github.io/eks-charts
+
+# Update your local repo to make sure that you have the most recent charts.
+helm repo update
+
+# Install the AWS Load Balancer Controller.
+## Template
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=Prod-EKS \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set region=ap-south-1 \
+  --set vpcId=<vpc-xxxxxxxx> \
+  --set image.repository=<account>.dkr.ecr.<region-code>.amazonaws.com/amazon/aws-load-balancer-controller # Get Region Code https://docs.aws.amazon.com/eks/latest/userguide/add-ons-images.html
+
+
+#output should be
+NAME: aws-load-balancer-controller
+NAMESPACE: kube-system
+STATUS: deployed
+NOTES:
+AWS Load Balancer controller installed!
+
+#verification
+
+kubectl -n kube-system get deployment 
+kubectl -n kube-system get deployment aws-load-balancer-controller
+kubectl -n kube-system describe deployment aws-load-balancer-controller
+
+
+
+
+
